@@ -29,7 +29,7 @@
 
             <!-- Item Name field -->
             <EditText
-                android:id="@+id/edit_Item_name"
+                android:id="@+id/edit_item_name"
                 android:hint="@string/hint_item_name"
                 android:inputType="textCapWords"
                 style="@style/EditorFieldStyle" />
@@ -40,6 +40,34 @@
                 android:hint="@string/hint_item_supplier"
                 android:inputType="textCapWords"
                 style="@style/EditorFieldStyle" />
+
+            <!-- Quantity Field -->
+            <EditText
+                android:id="@+id/edit_text_quantity"
+                android:hint="@string/hint_quantity"
+                android:inputType="number"
+                style="@style/EditorFieldStyle" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Quantity category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            android:text="@string/category_price"
+            style="@style/CategoryStyle" />
+
+        <!-- Input field -->
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
 
             <!-- Item price field -->
             <LinearLayout
@@ -52,40 +80,12 @@
                     android:text="$"/>
 
                 <EditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/edit_item_price"
                     android:hint="@string/hint_item_price"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    style="@style/EditorFieldStyle" />
 
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Quantity category -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <!-- Label -->
-        <TextView
-            android:text="@string/category_quantity"
-            style="@style/CategoryStyle" />
-
-        <!-- Input field -->
-        <LinearLayout
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-            <!-- Gender drop-down spinner -->
-            <Spinner
-                android:id="@+id/spinner_quantity"
-                android:layout_height="48dp"
-                android:layout_width="wrap_content"
-                android:paddingRight="16dp"
-                android:spinnerMode="dropdown"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -108,11 +108,12 @@
             android:orientation="vertical">
 
             <!-- Item Image -->
-            <ImageButton
-                android:id="@+id/image_button"
+            <Spinner
+                android:id="@+id/spinner_image"
                 android:layout_height="48dp"
                 android:layout_width="wrap_content"
-                android:src="@mipmap/ic_launcher" />
+                android:paddingRight="16dp"
+                android:spinnerMode="dropdown" />
         </LinearLayout>
     </LinearLayout>
 

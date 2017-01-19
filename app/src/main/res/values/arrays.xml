@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- These are the options displayed in the gender drop-down Spinner -->
+    <string-array name="array_image_options">
+        <item>@string/category_unknown</item>
+        <item>@string/category_1</item>
+        <item>@string/category_2</item>
+        <item>@string/category_3</item>
+    </string-array>
+
+</resources>
