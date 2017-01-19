@@ -12,7 +12,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class ItemDetails extends AppCompatActivity {
+import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
+
+public class DatailsActivity extends AppCompatActivity {
 
     /** EditText field to enter the item name */
     private EditText mNameEditText;
@@ -71,13 +73,13 @@ public class ItemDetails extends AppCompatActivity {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.category_1))) {
-                        mImage = 1;
+                        mImage = ItemEntry.IMAGE_CATEGORY_1;
                     } else if (selection.equals(getString(R.string.category_2))) {
-                        mImage = 2;
+                        mImage = ItemEntry.IMAGE_CATEGORY_2;
                     } else if (selection.equals(getString(R.string.category_3))) {
-                        mImage = 3;
+                        mImage = ItemEntry.IMAGE_CATEGORY_3;
                     } else {
-                        mImage = 0;
+                        mImage = ItemEntry.IMAGE_UNKNOWN;
                     }
                 }
             }
@@ -85,7 +87,7 @@ public class ItemDetails extends AppCompatActivity {
             // Because AdapterView is an abstract class, onNothingSelected must be defined
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                mImage = 0; // Unknown
+                mImage = ItemEntry.IMAGE_UNKNOWN; // Unknown
             }
         });
     }

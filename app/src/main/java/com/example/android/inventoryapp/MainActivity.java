@@ -15,12 +15,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Setup FAB to open ItemDetails
+        // Setup FAB to open DatailsActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ItemDetails.class);
+                Intent intent = new Intent(MainActivity.this, DatailsActivity.class);
                 startActivity(intent);
             }
         });
