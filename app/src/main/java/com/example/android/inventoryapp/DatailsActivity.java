@@ -1,7 +1,7 @@
 package com.example.android.inventoryapp;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -110,7 +110,7 @@ public class DatailsActivity extends AppCompatActivity {
         InventoryDatabaseHelper helper = new InventoryDatabaseHelper(this);
 
         // Open database for testing
-        SQLiteDatabase db = helper.getWritableDatabase();
+        //SQLiteDatabase db = helper.getWritableDatabase();
 
         // Put data together using a content values map
         ContentValues contentValues = new ContentValues();
@@ -120,9 +120,9 @@ public class DatailsActivity extends AppCompatActivity {
         contentValues.put(ItemEntry.ITEM_PRICE, priceInt);
         contentValues.put(ItemEntry.ITEM_IMAGE, imageInt);
 
-        long rowsInserted = db.insert(ItemEntry.TABLE_NAME, null, contentValues);
+        Uri newUri = getContentResolver().insert(ItemEntry.CONTENT_URI, contentValues);
 
-        if (rowsInserted < 0) {
+        if (newUri == null) {
             Toast.makeText(this, "Error : item not added", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Item added to inventory", Toast.LENGTH_SHORT).show();

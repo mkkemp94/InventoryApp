@@ -3,7 +3,7 @@ package com.example.android.inventoryapp;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private void displayDatabase() {
 
         // Get actual database for reading
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        //SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         // Specify columns I want
         String[] projection = {
@@ -58,11 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Cursor to read from - instead of a raw query, query the db object
         // using the table name I want and custom projection
-        Cursor cursor = db.query
-                (ItemEntry.TABLE_NAME,
+        Cursor cursor = getContentResolver().query
+                (ItemEntry.CONTENT_URI,
                         projection,
-                        null,
-                        null,
                         null,
                         null,
                         null);
@@ -108,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                     currentSupplier + " - " +
                     currentQuantity + " - " +
                     currentPrice + " - " +
-                    currentImage + " - "
+                    currentImage
                 );
             }
 
@@ -130,10 +128,10 @@ public class MainActivity extends AppCompatActivity {
         values.put(ItemEntry.ITEM_IMAGE, 2);
 
         // Open the database for testing
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-        // Insert new item into to it
-        long newRowId = db.insert(ItemEntry.TABLE_NAME, null, values);
+        // Insert new item into row using content provider
+        Uri newUri = getContentResolver().insert(ItemEntry.CONTENT_URI, values);
     }
 
     @Override
