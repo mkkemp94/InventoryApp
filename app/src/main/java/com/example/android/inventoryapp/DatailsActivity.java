@@ -125,7 +125,7 @@ public class DatailsActivity extends AppCompatActivity {
         if (rowsInserted < 0) {
             Toast.makeText(this, "Error : item not added", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, nameString + " added to inventory", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Item added to inventory", Toast.LENGTH_SHORT).show();
         }
     }
 

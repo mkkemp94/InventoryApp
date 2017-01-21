@@ -46,15 +46,72 @@ public class MainActivity extends AppCompatActivity {
         // Get actual database for reading
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
-        // Cursor to read from
-        Cursor cursor = db.rawQuery
-                ("SELECT * FROM " + ItemEntry.TABLE_NAME, null);
+        // Specify columns I want
+        String[] projection = {
+                ItemEntry._ID,
+                ItemEntry.ITEM_NAME,
+                ItemEntry.ITEM_SUPPLIER,
+                ItemEntry.ITEM_QUANTITY,
+                ItemEntry.ITEM_PRICE,
+                ItemEntry.ITEM_IMAGE,
+        };
 
-        // Cursors are fickle
+        // Cursor to read from - instead of a raw query, query the db object
+        // using the table name I want and custom projection
+        Cursor cursor = db.query
+                (ItemEntry.TABLE_NAME,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null);
+
+        TextView displayView = (TextView) findViewById(R.id.test);
+
+        // Cursors are fickle and must be closed
         try {
 
-            TextView displayView = (TextView) findViewById(R.id.test);
-            displayView.setText("Number of rows: " + cursor.getCount());
+            displayView.setText("Number of rows: " + cursor.getCount() + "\n\n");
+
+            // Show table for testing - header (1 line)
+            displayView.append(ItemEntry._ID + " - " +
+                ItemEntry.ITEM_NAME + " - " +
+                ItemEntry.ITEM_SUPPLIER + " - " +
+                ItemEntry.ITEM_QUANTITY + " - " +
+                ItemEntry.ITEM_PRICE + " - " +
+                ItemEntry.ITEM_IMAGE  + "\n"
+            );
+
+            // Get column indexes
+            int idColumnIndex = cursor.getColumnIndex(ItemEntry._ID);
+            int nameColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_NAME);
+            int supplierColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_SUPPLIER);
+            int quantityColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_QUANTITY);
+            int priceColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_PRICE);
+            int imageColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_IMAGE);
+
+            // Iterate through all rows in the cursor
+            while (cursor.moveToNext()) {
+
+                // Extract actual data form the columns with above ids
+                int currentID = cursor.getInt(idColumnIndex);
+                String currentName = cursor.getString(nameColumnIndex);
+                String currentSupplier = cursor.getString(supplierColumnIndex);
+                int currentQuantity = cursor.getInt(quantityColumnIndex);
+                int currentPrice = cursor.getInt(priceColumnIndex);
+                int currentImage = cursor.getInt(imageColumnIndex);
+
+                // Actually append the data now
+                displayView.append("\n" + currentID + " - " +
+                    currentName + " - " +
+                    currentSupplier + " - " +
+                    currentQuantity + " - " +
+                    currentPrice + " - " +
+                    currentImage + " - "
+                );
+            }
+
         } finally {
 
             cursor.close();
@@ -62,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Insert dummy item data
-    private void insertPet() {
+    private void insertItem() {
 
         // Map new values to their columns
         ContentValues values = new ContentValues();
@@ -93,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                insertPet();
+                insertItem();
                 displayDatabase();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
