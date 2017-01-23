@@ -16,4 +16,9 @@
     <string name="action_delete_all_entries">Delete all items</string>
     <string name="action_save">Save item</string>
     <string name="action_delete">Delete item</string>
+    <string name="delete_dialog_msg">Are you sure you want to delete this item?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="pet_not_deleted">ERROR : Item not deleted</string>
+    <string name="pet_deleted">Item successfully deleted</string>
 </resources>

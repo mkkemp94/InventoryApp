@@ -1,8 +1,10 @@
 package com.example.android.inventoryapp;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -13,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -52,6 +55,17 @@ public class DetailsActivity extends AppCompatActivity
     // If in edit mode, this is the current item uri
     private Uri mCurrentItemUri;
 
+    // Sets if item has changed in some way, to keep user from exiting accidentally
+    private boolean mItemHasChanged = false;
+
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mItemHasChanged = true;
+            return false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -82,6 +96,13 @@ public class DetailsActivity extends AppCompatActivity
         mQuantityEditText = (EditText) findViewById(R.id.edit_text_quantity);
         mPriceEditText = (EditText) findViewById(R.id.edit_item_price);
         mImageSpinner = (Spinner) findViewById(R.id.spinner_image);
+
+        // Detect whether or not the views have been touched and editted
+        mNameEditText.setOnTouchListener(mTouchListener);
+        mSupplierEditText.setOnTouchListener(mTouchListener);
+        mQuantityEditText.setOnTouchListener(mTouchListener);
+        mPriceEditText.setOnTouchListener(mTouchListener);
+        mImageSpinner.setOnTouchListener(mTouchListener);
 
         setupSpinner();
     }
@@ -129,7 +150,9 @@ public class DetailsActivity extends AppCompatActivity
         });
     }
 
-    // Gets values from edit text fields to insert pet into database
+    /**
+     * Gets values from edit text fields to insert item into database
+     */
     private void saveItem() {
 
         // Return without saving an item if all fields are empty
@@ -185,7 +208,9 @@ public class DetailsActivity extends AppCompatActivity
         }
     }
 
-    // Gets a quantity int out of a string
+    /** 
+     * Gets a quantity int out of a string
+     */
     private int getQuantityInt(String quantityString) {
 
         int quantity = 0;
@@ -198,7 +223,9 @@ public class DetailsActivity extends AppCompatActivity
         return quantity;
     }
 
-    // Format and get a price
+    /** 
+     * Format and get a price
+     */
     private int getPriceInt(String priceString) {
 
         // If there is no price, return 0
@@ -224,6 +251,62 @@ public class DetailsActivity extends AppCompatActivity
         return (int) (priceNumber.doubleValue() * 100);
     }
 
+    /**
+     * Confirm that the user wants to delete an item
+     */
+    private void showDeleteConfirmationDialog() {
+
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the postivie and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                deletePet();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        
+    }
+
+    /**
+     * Perform deletion of item from database
+     */
+    private void deletePet() {
+
+        if (mCurrentItemUri != null) {
+
+            // Deletes this item entirely
+            int mRowsDeleted = getContentResolver().delete(
+                    mCurrentItemUri,
+                    null,
+                    null
+            );
+
+            // Show toast message
+            if (mRowsDeleted == 0) {
+                Toast.makeText(this, R.string.pet_not_deleted, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.pet_deleted, Toast.LENGTH_SHORT).show();
+            }
+
+            // Exit this activity
+            finish();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -248,7 +331,7 @@ public class DetailsActivity extends AppCompatActivity
 
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
-                // Do nothing for now
+                showDeleteConfirmationDialog();
                 return true;
 
             // Respond to a click on the "Up" arrow button in the app bar

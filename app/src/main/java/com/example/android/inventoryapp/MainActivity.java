@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
 
@@ -110,10 +111,24 @@ public class MainActivity extends AppCompatActivity
 
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                deleteAllItems();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Delete all items in the inventory
+     */
+    private void deleteAllItems() {
+
+        int rowsDeleted = getContentResolver().delete(ItemEntry.CONTENT_URI, null, null);
+
+        if (rowsDeleted == 0) {
+            Toast.makeText(this, "ERROR : No rows deleted", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, rowsDeleted + " rows deleted", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
