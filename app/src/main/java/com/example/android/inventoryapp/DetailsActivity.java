@@ -1,6 +1,11 @@
 package com.example.android.inventoryapp;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -16,9 +21,15 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
-import com.example.android.inventoryapp.data.InventoryDatabaseHelper;
 
-public class DetailsActivity extends AppCompatActivity {
+import java.text.NumberFormat;
+import java.text.ParseException;
+
+public class DetailsActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    // Loader value
+    private static final int EXISTING_ITEM_LOADER = 555;
 
     /** EditText field to enter the item name */
     private EditText mNameEditText;
@@ -38,10 +49,32 @@ public class DetailsActivity extends AppCompatActivity {
     /** Image for the item. Possible values are 0 for unknown, 1, 2, and 3 */
     private int mImage = 0;
 
+    // If in edit mode, this is the current item uri
+    private Uri mCurrentItemUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_details);
+
+        // Get the intent that called this class and extract its data
+        Intent intent = getIntent();
+        mCurrentItemUri = intent.getData();
+
+        if (mCurrentItemUri == null) {
+
+            // In add pet mode
+            setTitle("Add an item");
+            invalidateOptionsMenu();
+        } else {
+
+            // In edit item mode
+            setTitle("Edit item");
+
+            // Initiate loader
+            getLoaderManager().initLoader(EXISTING_ITEM_LOADER, null, this);
+        }
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_item_name);
@@ -97,20 +130,23 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     // Gets values from edit text fields to insert pet into database
-    private void insertItem() {
+    private void saveItem() {
 
         // Retrieve data from edit text fields
         String nameString = mNameEditText.getText().toString().trim();
         String supplierString = mSupplierEditText.getText().toString().trim();
         int quantityInt = Integer.parseInt(mQuantityEditText.getText().toString().trim());
-        int priceInt = Integer.parseInt(mPriceEditText.getText().toString().trim());
+
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+        Number priceString = null;
+        try {
+            priceString = currencyFormatter.parse(mPriceEditText.getText().toString().trim());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        int priceInt = (int) (priceString.doubleValue() * 100);
         int imageInt = mImage;
-
-        // Open helper for testing
-        InventoryDatabaseHelper helper = new InventoryDatabaseHelper(this);
-
-        // Open database for testing
-        //SQLiteDatabase db = helper.getWritableDatabase();
 
         // Put data together using a content values map
         ContentValues contentValues = new ContentValues();
@@ -120,12 +156,27 @@ public class DetailsActivity extends AppCompatActivity {
         contentValues.put(ItemEntry.ITEM_PRICE, priceInt);
         contentValues.put(ItemEntry.ITEM_IMAGE, imageInt);
 
-        Uri newUri = getContentResolver().insert(ItemEntry.CONTENT_URI, contentValues);
+        // Add item
+        if (mCurrentItemUri == null) {
 
-        if (newUri == null) {
-            Toast.makeText(this, "Error : item not added", Toast.LENGTH_SHORT).show();
+            // Insert new item
+            Uri newUri = getContentResolver().insert(ItemEntry.CONTENT_URI, contentValues);
+
+            if (newUri == null) {
+                Toast.makeText(this, "Error : item not added", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Item added to inventory", Toast.LENGTH_SHORT).show();
+            }
         } else {
-            Toast.makeText(this, "Item added to inventory", Toast.LENGTH_SHORT).show();
+
+            // Update item
+            int rowsAffected = getContentResolver().update(mCurrentItemUri, contentValues, null, null);
+
+            if (rowsAffected == 0) {
+                Toast.makeText(this, "ERROR : Item not updated", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Item successfully updated", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -144,13 +195,17 @@ public class DetailsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                insertItem();
+                // Insert this item into the database
+                saveItem();
+                // Exit activity
                 finish();
                 return true;
+
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
                 // Do nothing for now
                 return true;
+
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
                 // Navigate back to parent activity (CatalogActivity)
@@ -158,5 +213,92 @@ public class DetailsActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Create cursor for all columns
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+
+        // Names of columns to call from the table
+        String[] projection = {
+                ItemEntry._ID,
+                ItemEntry.ITEM_NAME,
+                ItemEntry.ITEM_SUPPLIER,
+                ItemEntry.ITEM_QUANTITY,
+                ItemEntry.ITEM_PRICE,
+                ItemEntry.ITEM_IMAGE
+        };
+
+        // Create and return a CursorLoader that will take care of creating a cursor for the data
+        return new CursorLoader(this,
+                mCurrentItemUri,
+                projection,
+                null, null, null);
+
+    }
+
+    /**
+     * Populate edit text fields with data from cursor
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor thisCursor) {
+
+        // Move cursor to header row
+        if (thisCursor.moveToFirst()) {
+
+            // Get column indices
+            int nameColumnIndex = thisCursor.getColumnIndex(ItemEntry.ITEM_NAME);
+            int supplierColumnIndex = thisCursor.getColumnIndex(ItemEntry.ITEM_SUPPLIER);
+            int quantityColumnIndex = thisCursor.getColumnIndex(ItemEntry.ITEM_QUANTITY);
+            int priceColumnIndex = thisCursor.getColumnIndex(ItemEntry.ITEM_PRICE);
+            int imageColumnIndex = thisCursor.getColumnIndex(ItemEntry.ITEM_IMAGE);
+
+            // Extract data from those columns
+            String itemName = thisCursor.getString(nameColumnIndex);
+            String itemSupplier = thisCursor.getString(supplierColumnIndex);
+            int itemQuantity = thisCursor.getInt(quantityColumnIndex);
+            int priceQuantity = thisCursor.getInt(priceColumnIndex);
+            int imageValue = thisCursor.getInt(imageColumnIndex);
+
+            // Update edit text fields
+            mNameEditText.setText(itemName);
+            mSupplierEditText.setText(itemSupplier);
+            mQuantityEditText.setText(String.valueOf(itemQuantity));
+
+            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+            mPriceEditText.setText(String.valueOf(currencyFormatter.format((double) priceQuantity / 100)));
+
+            switch (imageValue) {
+                case ItemEntry.IMAGE_CATEGORY_1:
+                    mImageSpinner.setSelection(1);
+                    break;
+
+                case ItemEntry.IMAGE_CATEGORY_2:
+                    mImageSpinner.setSelection(2);
+                    break;
+
+                case ItemEntry.IMAGE_CATEGORY_3:
+                    mImageSpinner.setSelection(3);
+                    break;
+                default:
+                    mImageSpinner.setSelection(0);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Clear out edit text fields
+     */
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+        mNameEditText.setText("");
+        mSupplierEditText.setText("");
+        mQuantityEditText.setText("");
+        mPriceEditText.setText("");
+        mImageSpinner.setSelection(0);
     }
 }
