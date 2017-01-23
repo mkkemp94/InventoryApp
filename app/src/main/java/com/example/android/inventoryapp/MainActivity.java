@@ -1,8 +1,11 @@
 package com.example.android.inventoryapp;
 
+import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,14 +18,15 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
-import com.example.android.inventoryapp.data.InventoryDatabaseHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+                            implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    // For testing
-    InventoryDatabaseHelper mDbHelper;
-
+    // Item list adapter
     ItemCursorAdapter mCursorAdapter;
+
+    // Loader key
+    private static final int ITEM_LOADER = 333;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +50,8 @@ public class MainActivity extends AppCompatActivity {
         View emptyView = findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
 
-        // Get info from database
-        Cursor cursor = displayDatabase();
-
         // Adapter for item details
-        mCursorAdapter = new ItemCursorAdapter(this, cursor);
+        mCursorAdapter = new ItemCursorAdapter(this, null);
         listView.setAdapter(mCursorAdapter);
 
         // Setup item click listener
@@ -72,86 +73,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Get helper for testing
-        mDbHelper = new InventoryDatabaseHelper(this);
-
-
-    }
-
-    private Cursor displayDatabase() {
-
-        // Get actual database for reading
-        //SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Specify columns I want
-        String[] projection = {
-                ItemEntry._ID,
-                ItemEntry.ITEM_NAME,
-                ItemEntry.ITEM_SUPPLIER,
-                ItemEntry.ITEM_QUANTITY,
-                ItemEntry.ITEM_PRICE,
-                ItemEntry.ITEM_IMAGE,
-        };
-
-        // Cursor to read from - instead of a raw query, query the db object
-        // using the table name I want and custom projection
-        Cursor cursor = getContentResolver().query
-                (ItemEntry.CONTENT_URI,
-                        projection,
-                        null,
-                        null,
-                        null);
-
-        return cursor;
-//        TextView displayView = (TextView) findViewById(R.id.test);
-//
-//        // Cursors are fickle and must be closed
-//        try {
-//
-//            displayView.setText("Number of rows: " + cursor.getCount() + "\n\n");
-//
-//            // Show table for testing - header (1 line)
-//            displayView.append(ItemEntry._ID + " - " +
-//                ItemEntry.ITEM_NAME + " - " +
-//                ItemEntry.ITEM_SUPPLIER + " - " +
-//                ItemEntry.ITEM_QUANTITY + " - " +
-//                ItemEntry.ITEM_PRICE + " - " +
-//                ItemEntry.ITEM_IMAGE  + "\n"
-//            );
-
-//            // Get column indexes
-//            int idColumnIndex = cursor.getColumnIndex(ItemEntry._ID);
-//            int nameColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_NAME);
-//            int supplierColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_SUPPLIER);
-//            int quantityColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_QUANTITY);
-//            int priceColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_PRICE);
-//            int imageColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_IMAGE);
-//
-//            // Iterate through all rows in the cursor
-//            while (cursor.moveToNext()) {
-//
-//                // Extract actual data form the columns with above ids
-//                int currentID = cursor.getInt(idColumnIndex);
-//                String currentName = cursor.getString(nameColumnIndex);
-//                String currentSupplier = cursor.getString(supplierColumnIndex);
-//                int currentQuantity = cursor.getInt(quantityColumnIndex);
-//                int currentPrice = cursor.getInt(priceColumnIndex);
-//                int currentImage = cursor.getInt(imageColumnIndex);
-//
-//                // Actually append the data now
-//                displayView.append("\n" + currentID + " - " +
-//                    currentName + " - " +
-//                    currentSupplier + " - " +
-//                    currentQuantity + " - " +
-//                    currentPrice + " - " +
-//                    currentImage
-//                );
-//            }
-//
-//        } finally {
-//
-//            cursor.close();
-//        }
+        getLoaderManager().initLoader(333, null, this);
     }
 
     // Insert dummy item data
@@ -164,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
         values.put(ItemEntry.ITEM_QUANTITY, 88);
         values.put(ItemEntry.ITEM_PRICE, 562);
         values.put(ItemEntry.ITEM_IMAGE, 2);
-
-        // Open the database for testing
-        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Insert new item into row using content provider
         Uri newUri = getContentResolver().insert(ItemEntry.CONTENT_URI, values);
@@ -187,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
                 insertItem();
-                //displayDatabase();
                 return true;
+
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 // Do nothing for now
@@ -198,9 +117,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    public Loader onCreateLoader(int i, Bundle bundle) {
 
-        //displayDatabase();
+        // Specify columns I want
+        String[] projection = {
+                ItemEntry._ID,
+                ItemEntry.ITEM_NAME,
+                ItemEntry.ITEM_SUPPLIER,
+                ItemEntry.ITEM_QUANTITY,
+                ItemEntry.ITEM_PRICE,
+                ItemEntry.ITEM_IMAGE,
+        };
+
+        // This loader will execute the ContentProvider's query method on a background thread
+        return new CursorLoader(this,
+                ItemEntry.CONTENT_URI,
+                projection,
+                null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor newCursor) {
+
+        // Swap the new cursor into the adapter
+        mCursorAdapter.swapCursor(newCursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+        // Reset cursor adapter
+        mCursorAdapter.swapCursor(null);
     }
 }

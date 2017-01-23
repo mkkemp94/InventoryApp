@@ -84,6 +84,9 @@ public class InventoryProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
+        // If the data at this uri changes, we know we need to update the cursor
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
         return cursor;
     }
 
@@ -166,6 +169,9 @@ public class InventoryProvider extends ContentProvider {
             return null;
         }
 
+        // Notify all listeners that the data has changed for the item content uri
+        getContext().getContentResolver().notifyChange(uri, null);
+
         // Return the new uri with row appended to end
         return ContentUris.withAppendedId(uri, rowId);
     }
@@ -176,20 +182,31 @@ public class InventoryProvider extends ContentProvider {
         // Get writable database
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
+        int rowsDeleted;
+
         // Find what kind or uri we have
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case INVENTORY:
-                return db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
+                break;
 
             case ITEM_ID:
                 selection = ItemEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
-                return db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = db.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
+                break;
 
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
+
+        // Notify listeners
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
     }
 
     @Override
@@ -259,6 +276,13 @@ public class InventoryProvider extends ContentProvider {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Insert the item and return the number of rows affected
-        return db.update(ItemEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+        int rowsUpdated = db.update(ItemEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+
+        // Notify all listeners that the data has changed
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsUpdated;
     }
 }
