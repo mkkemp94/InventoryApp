@@ -2,45 +2,76 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_margin"
+    android:layout_height="?android:attr/listPreferredItemHeight"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="2"
         android:layout_height="wrap_content"
         android:id="@+id/category"
         tools:text="category"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@mipmap/ic_launcher"
+        android:layout_gravity="center"
+        android:layout_marginLeft="@dimen/activity_margin"
+        android:layout_marginRight="@dimen/activity_margin" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="#2B3D4D"
+        tools:text="item name"
+        android:layout_gravity="center" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginLeft="@dimen/activity_margin">
+        android:layout_marginLeft="@dimen/activity_margin"
+        android:layout_marginRight="@dimen/activity_margin"
+        android:layout_gravity="center">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Qty: "
+                android:fontFamily="sans-serif"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="#AEB6BD" />
+
+            <TextView
+                android:id="@+id/quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="#AEB6BD"
+                tools:text="quantity" />
+
+        </LinearLayout>
+
 
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="#2B3D4D"
-            tools:text="item name"
-            />
-
-        <TextView
-            android:id="@+id/summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
             android:textAppearance="?android:textAppearanceSmall"
             android:textColor="#AEB6BD"
-            tools:text="quantity"
-            />
+            tools:text="price"/>
 
     </LinearLayout>
+
+
 
 </LinearLayout>

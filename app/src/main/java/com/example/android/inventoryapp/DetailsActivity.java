@@ -132,21 +132,26 @@ public class DetailsActivity extends AppCompatActivity
     // Gets values from edit text fields to insert pet into database
     private void saveItem() {
 
+        // Return without saving an item if all fields are empty
+        if (TextUtils.isEmpty(mNameEditText.getText()) &&
+                TextUtils.isEmpty(mSupplierEditText.getText()) &&
+                TextUtils.isEmpty(mQuantityEditText.getText()) &&
+                TextUtils.isEmpty(mPriceEditText.getText()) &&
+                mImage == ItemEntry.IMAGE_UNKNOWN) {
+
+            return;
+        }
+
         // Retrieve data from edit text fields
         String nameString = mNameEditText.getText().toString().trim();
         String supplierString = mSupplierEditText.getText().toString().trim();
-        int quantityInt = Integer.parseInt(mQuantityEditText.getText().toString().trim());
-
-        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
-        Number priceString = null;
-        try {
-            priceString = currencyFormatter.parse(mPriceEditText.getText().toString().trim());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        int priceInt = (int) (priceString.doubleValue() * 100);
+        String quantityString = mQuantityEditText.getText().toString().trim();
+        String priceString = mPriceEditText.getText().toString().trim();
         int imageInt = mImage;
+
+        // Get quantity and price as ints
+        int quantityInt = getQuantityInt(quantityString);
+        int priceInt = getPriceInt(priceString);
 
         // Put data together using a content values map
         ContentValues contentValues = new ContentValues();
@@ -179,6 +184,46 @@ public class DetailsActivity extends AppCompatActivity
             }
         }
     }
+
+    // Gets a quantity int out of a string
+    private int getQuantityInt(String quantityString) {
+
+        int quantity = 0;
+
+        // If quantity is empty, assign it 0
+        if (!TextUtils.isEmpty(quantityString)) {
+            quantity = Integer.parseInt(quantityString);
+        }
+
+        return quantity;
+    }
+
+    // Format and get a price
+    private int getPriceInt(String priceString) {
+
+        // If there is no price, return 0
+        if (TextUtils.isEmpty(priceString)) {
+            return 0;
+        }
+
+        // Get the currency value from the edit text and change it into a number
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+        Number priceNumber = null;
+        try {
+            priceNumber = currencyFormatter.parse(priceString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // If at this point there is only a $
+        if (priceNumber == null) {
+            return 0;
+        }
+
+        // Change the price from a double to an int
+        return (int) (priceNumber.doubleValue() * 100);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

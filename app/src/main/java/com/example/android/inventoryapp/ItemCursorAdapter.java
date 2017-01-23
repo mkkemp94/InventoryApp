@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
 
+import java.text.NumberFormat;
+
 /**
  * Created by kempm on 1/22/2017.
  */
@@ -34,15 +36,21 @@ public class ItemCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
 
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
-        TextView quantityTextView = (TextView) view.findViewById(R.id.summary);
+        TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
+        TextView priceTextView = (TextView) view.findViewById(R.id.price);
 
         int nameColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_NAME);
         int quantityColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_QUANTITY);
+        int priceColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_PRICE);
 
         String itemName = cursor.getString(nameColumnIndex);
         int itemQuantity = cursor.getInt(quantityColumnIndex);
+        int itemPrice = cursor.getInt(priceColumnIndex);
 
         nameTextView.setText(itemName);
         quantityTextView.setText(String.valueOf(itemQuantity));
+
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+        priceTextView.setText(String.valueOf(currencyFormatter.format((double) itemPrice / 100)));
     }
 }

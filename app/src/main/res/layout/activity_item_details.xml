@@ -41,6 +41,27 @@
                 android:inputType="textCapWords"
                 style="@style/EditorFieldStyle" />
 
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Quantity category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            android:text="@string/category_quantity"
+            style="@style/CategoryStyle" />
+
+        <!-- Input field -->
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
             <!-- Quantity Field -->
             <EditText
                 android:id="@+id/edit_text_quantity"
@@ -51,7 +72,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Quantity category -->
+    <!-- Price category -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,22 +91,12 @@
             android:orientation="vertical">
 
             <!-- Item price field -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/edit_item_price"
+                android:hint="@string/hint_item_price"
+                android:inputType="numberDecimal"
+                style="@style/EditorFieldStyle" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$"/>
-
-                <EditText
-                    android:id="@+id/edit_item_price"
-                    android:hint="@string/hint_item_price"
-                    android:inputType="numberDecimal"
-                    style="@style/EditorFieldStyle" />
-
-            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
