@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
@@ -38,19 +39,37 @@ public class ItemCursorAdapter extends CursorAdapter {
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
         TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
         TextView priceTextView = (TextView) view.findViewById(R.id.price);
+        ImageView imageView = (ImageView) view.findViewById(R.id.category);
 
         int nameColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_NAME);
         int quantityColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_QUANTITY);
         int priceColumnIndex = cursor.getColumnIndex(ItemEntry.ITEM_PRICE);
+        int imageCoulmnIndex = cursor.getColumnIndex(ItemEntry.ITEM_IMAGE);
 
         String itemName = cursor.getString(nameColumnIndex);
         int itemQuantity = cursor.getInt(quantityColumnIndex);
         int itemPrice = cursor.getInt(priceColumnIndex);
+        int itemImage = cursor.getInt(imageCoulmnIndex);
 
         nameTextView.setText(itemName);
         quantityTextView.setText(String.valueOf(itemQuantity));
 
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
         priceTextView.setText(String.valueOf(currencyFormatter.format((double) itemPrice / 100)));
+
+        switch (itemImage) {
+            case 1:
+                imageView.setImageResource(R.mipmap.ic_paw);
+                break;
+            case 2:
+                imageView.setImageResource(R.mipmap.ic_mug);
+                break;
+            case 3:
+                imageView.setImageResource(R.mipmap.ic_paint);
+                break;
+            default:
+                imageView.setImageResource(R.mipmap.ic_wrench);
+                break;
+        }
     }
 }

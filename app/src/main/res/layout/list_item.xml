@@ -27,7 +27,9 @@
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="#2B3D4D"
         tools:text="item name"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"/>
 
     <LinearLayout
         android:layout_width="0dp"
