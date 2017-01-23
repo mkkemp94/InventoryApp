@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
 import com.example.android.inventoryapp.data.InventoryDatabaseHelper;
 
-public class DatailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity {
 
     /** EditText field to enter the item name */
     private EditText mNameEditText;

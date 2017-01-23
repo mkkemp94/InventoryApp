@@ -15,7 +15,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DatailsActivity"
+        <activity android:name=".DetailsActivity"
             android:theme="@style/EditorTheme"
             android:parentActivityName=".MainActivity">
 

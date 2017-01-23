@@ -7,7 +7,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract.ItemEntry;
@@ -88,7 +87,12 @@ public class InventoryProvider extends ContentProvider {
         return cursor;
     }
 
-    @Nullable
+    /**
+     * Returns a string that describes the type of data stored at the input URI
+     * The String is known as the MIME type, or content type.
+     * @param uri
+     * @return
+     */
     @Override
     public String getType(Uri uri) {
         final int match = sUriMatcher.match(uri);
