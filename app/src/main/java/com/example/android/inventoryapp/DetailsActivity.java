@@ -50,7 +50,7 @@ public class DetailsActivity extends AppCompatActivity
     private Spinner mImageSpinner;
 
     /** Image for the item. Possible values are 0 for unknown, 1, 2, and 3 */
-    private int mImage = 0;
+    private int mImage = ItemEntry.IMAGE_UNKNOWN;
 
     // If in edit mode, this is the current item uri
     private Uri mCurrentItemUri;
@@ -283,6 +283,32 @@ public class DetailsActivity extends AppCompatActivity
     }
 
     /**
+     * Show dialog to say that something has changed.
+     * This will be invoked upon back press.
+     */
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
+
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
      * Perform deletion of item from database
      */
     private void deletePet() {
@@ -336,9 +362,31 @@ public class DetailsActivity extends AppCompatActivity
 
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
+
                 // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
+                if (!mItemHasChanged) {
+                    NavUtils.navigateUpFromSameTask(DetailsActivity.this);
+                    return true;
+                }
+
+                // Set up on click listener for back on no changes
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+
+                            // On positive button click
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                // User clicked "Discard" button, navigate to parent activity.
+                                NavUtils.navigateUpFromSameTask(DetailsActivity.this);
+                            }
+                        };
+
+                // Show a dialog that notifies the user they have unsaved changes
+                showUnsavedChangesDialog(discardButtonClickListener);
+
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -428,5 +476,29 @@ public class DetailsActivity extends AppCompatActivity
         mQuantityEditText.setText("");
         mPriceEditText.setText("");
         mImageSpinner.setSelection(0);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        // If the item hasn't changed, continue with handling back button press
+        if (!mItemHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+
+        // Show dialog if something has changed
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        // User clicked "Discard" button, close the current activity.
+                        finish();
+                    }
+                };
+
+        // Show dialog that there are unsaved changes
+        showUnsavedChangesDialog(discardButtonClickListener);
     }
 }
